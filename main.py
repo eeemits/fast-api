@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.routes.issues import issues as issues_router
+from app.routes.issues import router as issues_router
 
 app = FastAPI()
 

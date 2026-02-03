@@ -22,4 +22,17 @@ class IssueCreate(BaseModel):
 
 
 class IssueUpdate(BaseModel):
-    title: Optional[str] = Field(default=None, max_length=100)  # basically null is JS
+    title: Optional[str] = Field(
+        default=None, max_length=100
+    )  # basically(None) null is JS
+    description: Optional[str] = Field(default=None, max_length=1000)
+    priority: Optional[IssuePriority] = None
+    status: Optional[IssueStatus] = None
+
+
+class IssueOut(BaseModel):  # for single issue or multiple , we define this class
+    id: str
+    title: str
+    description: str
+    priority: IssuePriority
+    status: IssueStatus
