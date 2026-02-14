@@ -27,8 +27,9 @@ def create_issue(payload: IssueCreate):
         "id": str(uuid.uuid4()),
         "title": payload.title,
         "description": payload.description,
-        "priority": payload.priority,
-        "status": IssueStatus.OPEN,
+        # store enum values so JSON serialization works; Pydantic will coerce back
+        "priority": payload.priority.value,
+        "status": IssueStatus.OPEN.value,
     }
 
     issues.append(new_issue)
@@ -46,5 +47,46 @@ def get_issue(issue_id: str):
     for issue in issues:
         if issue["id"] == issue_id:
             return issue
+
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Issue not found")
+
+
+@router.put("/update/{issue_id}", response_model=IssueOut)
+def update_issue(payload: IssueUpdate, issue_id: str):
+    """update issue by id"""
+
+    issues = load_data()
+
+    # You need both the element and its position.
+    # enumerate gives you the current index (idx) and the issue dict in one loop, so you can update the list item in place with issues[idx] = issue #
+
+    for idx, issue in enumerate(issues):
+        if issue["id"] == issue_id:
+            if payload.title is not None:
+                issue["title"] = payload.title
+            if payload.description is not None:
+                issue["description"] = payload.description
+            if payload.priority is not None:
+                issue["priority"] = payload.priority.value
+            if payload.status is not None:
+                issue["status"] = payload.status.value
+            issues[idx] = issue
+            save_data(issues)
+            return issue
+
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Issue not found")
+
+
+@router.delete("/{issue_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_issue(issue_id: str):
+    """delete issue by id"""
+
+    issues = load_data()
+
+    for idx, issue in enumerate(issues):
+        if issue["id"] == issue_id:
+            issues.pop(idx)
+            save_data(issues)
+            return
 
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Issue not found")
