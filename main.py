@@ -1,38 +1,18 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.routes.issues import router as issues_router
+from app.middleware.timer import timer_middleware
 
 app = FastAPI()
 
+app.middleware("http")(timer_middleware)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # allow all origin to access the API
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(issues_router)
-
-# items = [{1: "foo"}, {2: "bar"}, {3: "baz"}]
-
-# @app.get("/health")
-# async def health_check():
-#     return {"status": "healthy"}
-
-# @app.get("/items/")
-# async def read_items():
-#     return items
-
-# @app.get("/items/{item_id}")
-# def get_item(item_id: int):
-#         for item in items:
-#             if item_id in item:
-#                 return item
-#         return {"error": "Item not found"}
-
-# @app.post("/items/")
-# def create_item(item: dict):
-#     """
-#     Creates a new item in the items list.
-
-#     Args:
-#         item (dict): dictionary of item to be created
-
-#     Returns:
-#         dict: dictionary of item that was created
-#     """
-#     items.append(item)
-#     return item
